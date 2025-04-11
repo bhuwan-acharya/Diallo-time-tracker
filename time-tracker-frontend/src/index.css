@@ -1,0 +1,644 @@
+/* Ensure root, html, and body take up the full viewport minus the navbar height */
+:root, html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/* Ensure the body and html take up the full viewport */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden; /* Prevent scrollbars on the page */
+}
+
+/* Root Variables and Global Styles */
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure body stretches to fill the viewport */
+body {
+  display: flex;
+  flex-direction: column;
+  background-color: #f8f9fa;
+}
+
+/* Ensure #root takes up the remaining height after the navbar */
+#root {
+  /* min-height: calc(100vh - 4rem); Subtract the navbar height (4rem) */
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* Align content to the top */
+  align-items: center;
+}
+
+/* Ensure the root container takes up the full viewport */
+#root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
+}
+a:hover {
+  color: #535bf2;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s, background-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
+
+/* Navbar styling */
+.navbar {
+  height: 4rem; /* Match the logo height */
+  width: 100%;
+  position: relative; /* Allow content to be pushed down */
+  top: 0;
+  z-index: 1000; /* Ensure it stays above other content */
+  background-color: #ffffff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for the navbar */
+  transition: height 0.3s ease-in-out; /* Smooth transition for height changes */
+}
+
+/* When the navbar is expanded */
+.navbar-collapse.show {
+  position: relative; /* Push content down when expanded */
+  height: auto; /* Let the height adjust dynamically */
+  z-index: 1000; /* Ensure it stays above other content */
+}
+
+.navbar-brand {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+/* General nav-link styling */
+.nav-link {
+  position: relative;
+  font-size: 1rem;
+  color: #000;
+  text-decoration: none;
+  transition: color 0.3s ease-in-out;
+}
+
+.nav-link:hover {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 0;
+  height: 2px;
+  background-color: #007bff; 
+  transition: width 0.3s ease-in-out;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+/* Specific styling for the login button */
+.nav-link.btn {
+  text-decoration: none !important; /* Ensure no underline for button links */
+}
+
+.login-btn {
+  text-decoration: none !important; /* Ensure no underline */
+  position: static; /* Remove pseudo-element effects */
+  color: #000;
+  transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+/* Remove underline animation for login button */
+.nav-link.btn, .login-btn {
+  text-decoration: none !important; /* Ensure no underline */
+  position: static; /* Remove pseudo-element effects */
+}
+
+.nav-link.btn::after, .login-btn::after {
+  content: none; /* Disable the underline animation */
+}
+
+.login-btn:hover {
+  color: #fff;
+  background-color: #007bff;
+}
+
+.btn-link {
+  border: none;
+  padding: 0;
+  font-size: 1rem;
+  background: none;
+  cursor: pointer;
+}
+
+.text-danger {
+  color: #dc3545 !important;
+}
+
+/* Ensure all child elements fit within the viewport */
+.login-container {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  width: 100%;
+  height: 100%;
+  background-color: #f8f9fa;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* Card styling for the login form */
+.login-card {
+  background: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Forgot password link styling */
+.forgot-password-link {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.forgot-password-link:hover {
+  text-decoration: underline;
+}
+
+/* Button styling */
+.btn-primary {
+  background-color: #007bff;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+.MuiTablePagination-selectLabel {
+  margin: 0 !important; /* Remove margin */
+}
+
+.MuiTablePagination-displayedRows {
+  margin: 0 !important; /* Remove margin */
+}
+
+.MuiTablePagination-toolbar {
+  justify-content: center !important; /* Center the pagination toolbar */
+}
+
+/* Dashboard container styling */
+.dashboard-container {
+  background-color: #f8f9fa; 
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center; 
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* Style for the dashboard container */
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* Dashboard card styling */
+.dashboard-card {
+  background-color: #ffffff; /* White background */
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  width: 80%; /* Adjust width to 90% */
+  max-width: 1200px; /* Limit maximum width */
+  box-sizing: border-box;
+}
+
+/* Style for the dashboard card */
+.dashboard-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  background-color: #ffffff;
+  overflow: hidden;
+}
+
+/* Scanner container styling */
+.scanner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw; /* Full width of the viewport */
+  height: 100vh; /* Full height of the viewport */
+  background-color: #f9f9f9;
+  position: relative; /* Allow positioning of child elements */
+  overflow: hidden; /* Prevent content overflow */
+  padding: 20px; /* Add padding for spacing */
+  box-sizing: border-box;
+}
+
+/* Scanner Overlay */
+.scanner-overlay {
+  position: relative;
+  width: 90%; /* Make the scanner box responsive */
+  max-width: 500px; /* Limit the maximum width */
+  aspect-ratio: 4 / 3; /* Maintain a 4:3 aspect ratio */
+  border: 4px solid #007bff;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 123, 255, 0.5);
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  animation: scanner-border-glow 2s infinite;
+  overflow: hidden; /* Prevent overflow */
+}
+
+/* Scanner Buttons Container */
+.scanner-buttons-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding: 10px; /* Add padding for spacing */
+}
+
+/* Scanner Buttons */
+.scanner-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 150px;
+  height: 150px;
+  border: 2px solid #ddd; /* Add border */
+  border-radius: 10px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add shadow */
+}
+
+.scanner-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  border-color: #aaa; /* Change border color on hover */
+}
+
+.scanner-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Button Colors */
+.btn-blue {
+  background-color: #007bff;
+}
+
+.btn-green {
+  background-color: #28a745;
+}
+
+.btn-orange {
+  background-color: #fd7e14;
+}
+
+.btn-red {
+  background-color: #dc3545;
+}
+
+/* Button Icon */
+.scanner-btn-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Scanner Animation */
+@keyframes scanner-border-glow {
+  0% {
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(0, 123, 255, 0.8);
+  }
+  100% {
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+  }
+}
+
+/* Dashboard title styling */
+.dashboard-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #333333; /* Dark gray text */
+}
+
+/* Remove magnifying glass icon from filters */
+.ag-theme-alpine .ag-floating-filter-button {
+  display: none;
+}
+
+/* Custom table styling */
+.custom-grid-theme {
+  --ag-header-background-color: #004d99; /* App's primary color */
+  --ag-header-foreground-color: #004d99; /* White text for headers */
+  --ag-row-hover-color: #e6f2ff; /* Light blue for row hover */
+  --ag-odd-row-background-color: #f2f2f2; /* Light gray for odd rows */
+  --ag-even-row-background-color: #ffffff; /* White for even rows */
+  --ag-border-color: #cccccc; /* Light gray for borders */
+}
+
+/* Adjust header font size */
+.ag-theme-alpine .ag-header-cell-label {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* Adjust row font size */
+.ag-theme-alpine .ag-cell {
+  font-size: 13px;
+}
+
+/* Ensure the AG Grid container fits within the card */
+.ag-theme-alpine {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/* Button Container */
+.scanner-buttons-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+/* Button Styles */
+.scanner-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 150px;
+  height: 150px;
+  border: 2px solid #ddd; /* Add border */
+  border-radius: 10px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add shadow */
+}
+
+.scanner-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  border-color: #aaa; /* Change border color on hover */
+}
+
+.scanner-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Button Colors */
+.btn-blue {
+  background-color: #007bff;
+}
+
+.btn-green {
+  background-color: #28a745;
+}
+
+.btn-orange {
+  background-color: #fd7e14;
+}
+
+.btn-red {
+  background-color: #dc3545;
+}
+
+/* Button Icon */
+.scanner-btn-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.reset-password-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  background-color: #f9f9f9;
+}
+
+.reset-password-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background-color: #fff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.reset-password-card h2 {
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.reset-password-card .form-label {
+  font-weight: bold;
+  color: #555;
+}
+
+.reset-password-card .btn {
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.reset-password-card .alert {
+  font-size: 0.9rem;
+  margin-top: 10px;
+}
+
+.reset-password-card .back-to-login-link {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.reset-password-card .back-to-login-link:hover {
+  text-decoration: underline;
+}
+
+
+.update-password-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+
+  width: 100vw;
+  background-color: #f9f9f9;
+}
+
+.update-password-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background-color: #fff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.update-password-card h2 {
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.update-password-card .form-label {
+  font-weight: bold;
+  color: #555;
+}
+
+.update-password-card .btn {
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.update-password-card .alert {
+  font-size: 0.9rem;
+  margin-top: 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .scanner-buttons-container {
+    flex-direction: column;
+  }
+
+  .scanner-btn {
+    width: 100%;
+    height: auto;
+    padding: 1rem;
+  }
+
+  .scanner-overlay {
+    width: 95%; /* Adjust width for smaller screens */
+    max-width: 400px; /* Limit the maximum width */
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .login-card {
+    padding: 20px;
+  }
+
+  .navbar {
+    padding: 0.5rem;
+  }
+
+  .navbar-collapse {
+    background-color: #ffffff; /* Ensure the expanded menu has a background */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Add shadow for better visibility */
+  }
+
+  .navbar-collapse.show {
+    position: relative; /* Push content down when expanded */
+  }
+
+  .nav-link {
+    display: block; /* Stack links vertically */
+    padding: 0.5rem 1rem;
+  }
+}
+
+
