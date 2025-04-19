@@ -105,6 +105,104 @@ button:focus-visible {
 
 /* Navbar styling */
 .navbar {
+  height: 4rem; /* Set a consistent height for the navbar */
+  display: flex;
+  align-items: center; /* Vertically center all items */
+  justify-content: space-between; /* Space out brand and nav items */
+  padding: 0 1rem; /* Add horizontal padding */
+  background-color: #ffffff; /* Ensure a white background */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for the navbar */
+  position: relative;
+  z-index: 1030; /* Ensure it stays above other content */
+}
+
+/* Navbar Brand (Logo) */
+.navbar-brand {
+  display: flex;
+  align-items: center; /* Vertically center the brand/logo */
+  height: 100%; /* Ensure it spans the full height of the navbar */
+}
+
+/* Navbar Links */
+.navbar-nav {
+  display: flex;
+  align-items: center; /* Vertically center nav items */
+  margin-top: 0; /* Remove any default margin */
+}
+
+/* Navbar Toggler (Hamburger Menu) */
+.navbar-toggler {
+  border: none;
+  background: transparent;
+  outline: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: transform 0.3s ease-in-out;
+}
+
+.navbar-toggler:hover {
+  transform: scale(1.1); /* Slight zoom-in effect on hover */
+}
+
+.navbar-toggler-icon {
+  display: inline-block;
+  width: 30px;
+  height: 3px;
+  background-color: #333; /* Default color */
+  border-radius: 2px;
+  position: relative;
+  transition: all 0.3s ease-in-out;
+}
+
+.navbar-toggler-icon::before,
+.navbar-toggler-icon::after {
+  content: '';
+  position: absolute;
+  width: 30px;
+  height: 3px;
+  background-color: #333; /* Default color */
+  border-radius: 2px;
+  transition: all 0.3s ease-in-out;
+}
+
+.navbar-toggler-icon::before {
+  top: -8px; /* Position the top bar */
+}
+
+.navbar-toggler-icon::after {
+  top: 8px; /* Position the bottom bar */
+}
+
+/* When the menu is expanded */
+.navbar-toggler.collapsed .navbar-toggler-icon {
+  visibility: hidden; /* Hide the middle bar */
+}
+
+.navbar-toggler.collapsed .navbar-toggler-icon::before {
+  visibility: visible; /* Ensure the top bar is visible */
+  transform: rotate(45deg) translate(5px, 5px); /* Create an "X" shape */
+}
+
+.navbar-toggler.collapsed .navbar-toggler-icon::after {
+  visibility: visible; /* Ensure the bottom bar is visible */
+  transform: rotate(-45deg) translate(5px, -5px); /* Create an "X" shape */
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
+
+/* Navbar styling */
+.navbar {
   height: 4rem; /* Match the logo height */
   width: 100%;
   position: relative; /* Allow content to be pushed down */
@@ -335,7 +433,7 @@ button:focus-visible {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 1rem;
+  gap: 1.5rem; /* Increased spacing for better layout */
   margin-top: 2rem;
   padding: 10px; /* Add padding for spacing */
 }
@@ -346,24 +444,27 @@ button:focus-visible {
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  width: 150px;
-  height: 150px;
+  width: 160px; /* Slightly larger buttons */
+  height: 160px;
   border: 2px solid #ddd; /* Add border */
-  border-radius: 10px;
+  border-radius: 15px; /* Rounded corners for a modern look */
   font-size: 1.2rem;
   font-weight: bold;
   color: white;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add shadow */
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  background-color: #007bff; /* Default blue background */
 }
 
+/* Button Hover Effect */
 .scanner-btn:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  transform: scale(1.1); /* Slight zoom-in effect */
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2); /* Enhanced shadow on hover */
   border-color: #aaa; /* Change border color on hover */
 }
 
+/* Button Disabled State */
 .scanner-btn:disabled {
   cursor: not-allowed;
   opacity: 0.6;
@@ -371,25 +472,39 @@ button:focus-visible {
 
 /* Button Colors */
 .btn-blue {
-  background-color: #007bff;
+  background-color: #007bff; /* Blue */
 }
 
 .btn-green {
-  background-color: #28a745;
+  background-color: #28a745; /* Green */
 }
 
 .btn-orange {
-  background-color: #fd7e14;
+  background-color: #fd7e14; /* Orange */
 }
 
 .btn-red {
-  background-color: #dc3545;
+  background-color: #dc3545; /* Red */
 }
 
 /* Button Icon */
 .scanner-btn-icon {
-  font-size: 2rem;
+  font-size: 2.5rem; /* Larger icons */
   margin-bottom: 0.5rem;
+  transition: transform 0.3s ease; /* Smooth animation for icons */
+}
+
+/* Icon Hover Effect */
+.scanner-btn:hover .scanner-btn-icon {
+  transform: rotate(15deg); /* Slight rotation on hover */
+}
+
+/* Button Label */
+.scanner-btn-label {
+  font-size: 1rem;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 0.5rem;
 }
 
 /* Scanner Animation */
@@ -453,8 +568,9 @@ button:focus-visible {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 1rem;
+  gap: 1.5rem; /* Increased spacing for better layout */
   margin-top: 2rem;
+  padding: 10px; /* Add padding for spacing */
 }
 
 /* Button Styles */
@@ -463,24 +579,27 @@ button:focus-visible {
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  width: 150px;
-  height: 150px;
+  width: 160px; /* Slightly larger buttons */
+  height: 160px;
   border: 2px solid #ddd; /* Add border */
-  border-radius: 10px;
+  border-radius: 15px; /* Rounded corners for a modern look */
   font-size: 1.2rem;
   font-weight: bold;
   color: white;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add shadow */
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  background-color: #007bff; /* Default blue background */
 }
 
+/* Button Hover Effect */
 .scanner-btn:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  transform: scale(1.1); /* Slight zoom-in effect */
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2); /* Enhanced shadow on hover */
   border-color: #aaa; /* Change border color on hover */
 }
 
+/* Button Disabled State */
 .scanner-btn:disabled {
   cursor: not-allowed;
   opacity: 0.6;
@@ -488,25 +607,39 @@ button:focus-visible {
 
 /* Button Colors */
 .btn-blue {
-  background-color: #007bff;
+  background-color: #007bff; /* Blue */
 }
 
 .btn-green {
-  background-color: #28a745;
+  background-color: #28a745; /* Green */
 }
 
 .btn-orange {
-  background-color: #fd7e14;
+  background-color: #fd7e14; /* Orange */
 }
 
 .btn-red {
-  background-color: #dc3545;
+  background-color: #dc3545; /* Red */
 }
 
 /* Button Icon */
 .scanner-btn-icon {
-  font-size: 2rem;
+  font-size: 2.5rem; /* Larger icons */
   margin-bottom: 0.5rem;
+  transition: transform 0.3s ease; /* Smooth animation for icons */
+}
+
+/* Icon Hover Effect */
+.scanner-btn:hover .scanner-btn-icon {
+  transform: rotate(15deg); /* Slight rotation on hover */
+}
+
+/* Button Label */
+.scanner-btn-label {
+  font-size: 1rem;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 0.5rem;
 }
 
 .reset-password-container {
@@ -607,12 +740,20 @@ button:focus-visible {
   .scanner-btn {
     width: 100%;
     height: auto;
-    padding: 1rem;
+    padding: 1.5rem;
   }
 
   .scanner-overlay {
     width: 95%; /* Adjust width for smaller screens */
     max-width: 400px; /* Limit the maximum width */
+  }
+
+  .scanner-btn-icon {
+    font-size: 2rem; /* Adjust icon size for smaller screens */
+  }
+
+  .scanner-btn-label {
+    font-size: 1rem; /* Adjust label size for smaller screens */
   }
 }
 
@@ -623,21 +764,212 @@ button:focus-visible {
   }
 
   .navbar {
-    padding: 0.5rem;
+    height: auto; /* Allow the navbar to expand dynamically */
+    padding: 0.5rem; /* Adjust padding for smaller screens */
   }
 
   .navbar-collapse {
-    background-color: #ffffff; /* Ensure the expanded menu has a background */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Add shadow for better visibility */
+    background-color: #f8f9fa; /* Match the navbar background */
+    padding: 1rem;
   }
 
-  .navbar-collapse.show {
-    position: relative; /* Push content down when expanded */
+  .navbar-nav {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .nav-item {
+    width: 100%;
+    text-align: left;
   }
 
   .nav-link {
-    display: block; /* Stack links vertically */
     padding: 0.5rem 1rem;
+    width: 100%;
+  }
+}
+
+/* Navbar Styles */
+.navbar {
+  position: relative;
+  z-index: 1030;
+}
+
+.navbar-collapse {
+  transition: height 0.3s ease, visibility 0.3s ease;
+}
+
+.navbar-collapse.show {
+  height: auto !important; /* Ensure it expands properly */
+  visibility: visible;
+}
+
+.navbar-nav {
+  margin-top: 1rem;
+}
+
+.navbar-toggler {
+  border: none;
+  outline: none;
+}
+
+.navbar-toggler-icon {
+  background-color: #333;
+  border-radius: 2px;
+  width: 30px;
+  height: 3px;
+  display: block;
+  margin: 5px auto;
+}
+
+/* Hamburger Menu Button */
+.navbar-toggler {
+  border: none;
+  background: transparent;
+  outline: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: transform 0.3s ease-in-out;
+}
+
+.navbar-toggler:hover {
+  transform: scale(1.1); /* Slight zoom-in effect on hover */
+}
+
+.navbar-toggler-icon {
+  display: inline-block;
+  width: 30px;
+  height: 3px;
+  background-color: #333; /* Default color */
+  border-radius: 2px;
+  position: relative;
+  transition: all 0.3s ease-in-out;
+}
+
+.navbar-toggler-icon::before,
+.navbar-toggler-icon::after {
+  content: '';
+  position: absolute;
+  width: 30px;
+  height: 3px;
+  background-color: #333; /* Default color */
+  border-radius: 2px;
+  transition: all 0.3s ease-in-out;
+}
+
+.navbar-toggler-icon::before {
+  top: -8px; /* Position the top bar */
+}
+
+.navbar-toggler-icon::after {
+  top: 8px; /* Position the bottom bar */
+}
+
+/* When the menu is expanded */
+.navbar-toggler.collapsed .navbar-toggler-icon {
+  visibility: hidden; /* Hide the middle bar */
+}
+
+.navbar-toggler.collapsed .navbar-toggler-icon::before {
+  visibility: visible; /* Ensure the top bar is visible */
+  transform: rotate(45deg) translate(5px, 5px); /* Create an "X" shape */
+}
+
+.navbar-toggler.collapsed .navbar-toggler-icon::after {
+  visibility: visible; /* Ensure the bottom bar is visible */
+  transform: rotate(-45deg) translate(5px, -5px); /* Create an "X" shape */
+}
+
+/* Custom Hamburger Menu */
+.custom-toggler {
+  border: none;
+  background: transparent;
+  outline: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: transform 0.3s ease-in-out;
+}
+
+.custom-toggler:hover {
+  transform: scale(1.1); /* Slight zoom-in effect on hover */
+}
+
+.custom-toggler .navbar-toggler-icon {
+  display: inline-block;
+  width: 30px;
+  height: 3px;
+  background-color: #333; /* Default color */
+  border-radius: 2px;
+  position: relative;
+  transition: all 0.3s ease-in-out;
+}
+
+.custom-toggler .navbar-toggler-icon::before,
+.custom-toggler .navbar-toggler-icon::after {
+  content: '';
+  position: absolute;
+  width: 30px;
+  height: 3px;
+  background-color: #333; /* Default color */
+  border-radius: 2px;
+  transition: all 0.3s ease-in-out;
+}
+
+.custom-toggler .navbar-toggler-icon::before {
+  top: -8px; /* Position the top bar */
+}
+
+.custom-toggler .navbar-toggler-icon::after {
+  top: 8px; /* Position the bottom bar */
+}
+
+/* When the menu is expanded */
+.custom-toggler.collapsed .navbar-toggler-icon {
+  visibility: hidden; /* Hide the middle bar */
+}
+
+.custom-toggler.collapsed .navbar-toggler-icon::before {
+  visibility: visible; /* Ensure the top bar is visible */
+  transform: rotate(45deg) translate(5px, 5px); /* Create an "X" shape */
+}
+
+.custom-toggler.collapsed .navbar-toggler-icon::after {
+  visibility: visible; /* Ensure the bottom bar is visible */
+  transform: rotate(-45deg) translate(5px, -5px); /* Create an "X" shape */
+}
+
+/* Dropdown Menu Styling */
+.navbar-collapse {
+  max-height: 0; /* Initially collapsed */
+  overflow: hidden; /* Hide overflowing content */
+  transition: max-height 0.3s ease-in-out; /* Smooth animation for expanding/collapsing */
+}
+
+.navbar-collapse.show {
+  max-height: 500px; /* Set a maximum height for the expanded state */
+  overflow: visible; /* Allow content to be visible when expanded */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .navbar-collapse {
+    background-color: #f8f9fa; /* Match the navbar background */
+    padding: 1rem;
+  }
+
+  .navbar-nav {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .nav-item {
+    width: 100%;
+    text-align: left;
+  }
+
+  .nav-link {
+    padding: 0.5rem 1rem;
+    width: 100%;
   }
 }
 

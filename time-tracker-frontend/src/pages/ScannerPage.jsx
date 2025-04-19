@@ -11,6 +11,8 @@ function ScannerPage() {
   const [activeAction, setActiveAction] = useState(null);
   const [showScanner, setShowScanner] = useState(true);
   const [timeSummary, setTimeSummary] = useState(null);
+  const [isLocationVerified, setIsLocationVerified] = useState(false); // Tracks if location is verified
+  const [workLog, setWorkLog] = useState(null); // Tracks the current work log for the day
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,8 +21,25 @@ function ScannerPage() {
       navigate('/login');
     } else {
       setIsLoggedIn(true);
+      fetchWorkLog(); // Fetch the current work log on load
     }
   }, [navigate]);
+
+  const fetchWorkLog = async () => {
+    try {
+      const response = await API.get('/api/work-log', {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      });
+      setWorkLog(response.data); // Set the work log state
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        setWorkLog(null); // No work log found for today
+      } else {
+        console.error('Error fetching work log:', error);
+        toast.error('Failed to fetch work log. Please try again.');
+      }
+    }
+  };
 
   const handleScan = async (data) => {
     if (data) {
@@ -31,12 +50,14 @@ function ScannerPage() {
         if (isValidLocation) {
           setQrResult(data);
           setShowScanner(false); // Stop scanning
+          setIsLocationVerified(true); // Mark location as verified
           toast.success('Location verified. You can now log your time.', {
             position: 'top-right',
             autoClose: 3000,
           });
         } else {
           setShowScanner(false); // Stop scanning on error
+          setIsLocationVerified(false); // Reset location verification
           toast.error('Invalid location. You need to be in the office to log in.', {
             position: 'top-right',
             autoClose: 5000,
@@ -44,6 +65,7 @@ function ScannerPage() {
         }
       } catch (error) {
         setShowScanner(false); // Stop scanning on error
+        setIsLocationVerified(false); // Reset location verification
         toast.error('Invalid QR code format. Please try again.', {
           position: 'top-right',
           autoClose: 5000,
@@ -51,6 +73,7 @@ function ScannerPage() {
       }
     } else {
       setShowScanner(false); // Stop scanning on error
+      setIsLocationVerified(false); // Reset location verification
       toast.warn('No QR code detected. Please try again.', {
         position: 'top-right',
         autoClose: 3000,
@@ -82,34 +105,40 @@ function ScannerPage() {
 
   const handleAction = async (type) => {
     if (!isLoggedIn) {
-      alert('Please log in first.');
+      toast.error('Please log in first.');
+      return;
+    }
+
+    // Validate actions based on the current work log state
+    if (type === 'Start Work' && workLog?.start_time) {
+      toast.error('You have already started work for today.');
+      return;
+    }
+    if (type === 'Break Start' && (!workLog?.start_time || workLog?.break_start)) {
+      toast.error('You cannot start a break. Either work has not started or a break is already active.');
+      return;
+    }
+    if (type === 'Break End' && (!workLog?.break_start || !!workLog?.break_end || !!workLog?.finish_time)) {
+      toast.error('You cannot end a break. Either a break has not started, it has already ended, or work is already finished.');
+      return;
+    }
+    if (type === 'Finish Work' && (!workLog?.start_time || !!workLog?.finish_time)) {
+      toast.error('You cannot finish work. Either work has not started or it is already finished.');
       return;
     }
 
     const token = localStorage.getItem('token');
-    const currentDate = new Date().toISOString().split('T')[0];
-    const currentTime = new Date().toISOString(); // Save the full ISO datetime
 
     try {
       // Decode the token to get the employeeId
       const payload = JSON.parse(atob(token.split('.')[1]));
       const employeeId = payload.id;
 
-      // Prepare the payload based on the action type
+      // Prepare the payload to send to the server
       const payloadData = {
         employeeId,
-        date: currentDate,
+        type, // Action type (e.g., Start Work, Break Start)
       };
-
-      if (type === 'Start Work') {
-        payloadData.startTime = currentTime;
-      } else if (type === 'Break Start') {
-        payloadData.breakStart = currentTime;
-      } else if (type === 'Break End') {
-        payloadData.breakEnd = currentTime;
-      } else if (type === 'Finish Work') {
-        payloadData.finishTime = currentTime;
-      }
 
       console.log('Payload being sent:', payloadData);
 
@@ -118,13 +147,19 @@ function ScannerPage() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      alert(`${type} logged successfully.`);
+      toast.success(`${type} logged successfully.`);
       setActiveAction(type);
       setShowScanner(true); // Redirect back to scanner
-      updateTimeSummary(response.data); // Update time summary with the response
+      fetchWorkLog(); // Refresh the work log after the action
     } catch (error) {
       console.error('Error logging action:', error);
-      alert('Failed to log action. Please try again.');
+      if (error.response) {
+        // Show server error message if available
+        toast.error(error.response.data.message || 'Failed to log action. Please try again.');
+      } else {
+        // Show generic error message
+        toast.error('Failed to log action. Please try again.');
+      }
     }
   };
 
@@ -140,23 +175,19 @@ function ScannerPage() {
   };
 
   const calculateWorkedHours = (logEntry) => {
-    if (logEntry.startTime && logEntry.finishTime) {
-      const start = new Date(logEntry.startTime);
-      const finish = new Date(logEntry.finishTime);
-      const diff = (finish - start) / (1000 * 60 * 60); // Difference in hours
-      return diff.toFixed(2);
-    }
-    return '-';
+    if (!logEntry.startTime || !logEntry.finishTime) return '-';
+    const start = new Date(logEntry.startTime);
+    const finish = new Date(logEntry.finishTime);
+    const diff = (finish - start) / (1000 * 60 * 60); // Difference in hours
+    return diff.toFixed(2);
   };
 
   const calculateBreakMinutes = (logEntry) => {
-    if (logEntry.breakStart && logEntry.breakEnd) {
-      const breakStart = new Date(logEntry.breakStart);
-      const breakEnd = new Date(logEntry.breakEnd);
-      const diff = (breakEnd - breakStart) / (1000 * 60); // Difference in minutes
-      return diff.toFixed(0);
-    }
-    return '-';
+    if (!logEntry.breakStart || !logEntry.breakEnd) return '-';
+    const start = new Date(logEntry.breakStart);
+    const end = new Date(logEntry.breakEnd);
+    const diff = (end - start) / (1000 * 60); // Difference in minutes
+    return diff.toFixed(0);
   };
 
   return (
@@ -167,37 +198,73 @@ function ScannerPage() {
           <h3>Employee Time Tracker</h3>
           <QRScanner onScan={handleScan} />
         </>
-      ) : qrResult ? (
-        <>
-          {/* Show buttons when a successful scan occurs */}
-          <div className="scanner-buttons-container">
-            {[
-              { action: 'Start Work', label: 'Start Shift', icon: '🕒', color: 'btn-blue' },
-              { action: 'Break Start', label: 'Start Break', icon: '☕', color: 'btn-green' },
-              { action: 'Break End', label: 'End Break', icon: '🔄', color: 'btn-orange' },
-              { action: 'Finish Work', label: 'End Shift', icon: '✅', color: 'btn-red' },
-            ].map(({ action, label, icon, color }) => (
-              <button
-                key={action}
-                className={`scanner-btn ${color}`}
-                onClick={() => handleAction(action)}
-                disabled={action === 'Start Work' && activeAction === 'Start Work'}
-              >
-                <span className="scanner-btn-icon">{icon}</span>
-                <span className="scanner-btn-label">{label}</span>
-              </button>
-            ))}
-          </div>
-        </>
+      ) : isLocationVerified ? (
+        <div className="scanner-buttons-container">
+          {/* Start Work Button */}
+          <button
+            className="scanner-btn btn-blue"
+            onClick={() => handleAction('Start Work')}
+            disabled={
+              !!workLog?.finish_time || // Disable if finish_time is logged
+              !!workLog?.start_time || // Disable if start_time is already logged
+              !!workLog?.break_start // Disable if break_start is logged
+            }
+          >
+            <i className="fas fa-play scanner-btn-icon"></i>
+            <span className="scanner-btn-label">Start Work</span>
+          </button>
+
+          {/* Break Start Button */}
+          <button
+            className="scanner-btn btn-orange"
+            onClick={() => handleAction('Break Start')}
+            disabled={
+              !!workLog?.finish_time || // Disable if finish_time is logged
+              !workLog?.start_time || // Disable if work hasn't started
+              !!workLog?.break_start // Disable if break_start is already logged
+            }
+          >
+            <i className="fas fa-coffee scanner-btn-icon"></i>
+            <span className="scanner-btn-label">Break Start</span>
+          </button>
+
+          {/* Break End Button */}
+          <button
+            className="scanner-btn btn-green"
+            onClick={() => handleAction('Break End')}
+            disabled={
+              !!workLog?.finish_time || // Disable if finish_time is logged
+              !workLog?.break_start || // Disable if break hasn't started
+              !!workLog?.break_end // Disable if break_end is already logged
+            }
+          >
+            <i className="fas fa-check scanner-btn-icon"></i>
+            <span className="scanner-btn-label">Break End</span>
+          </button>
+
+          {/* Finish Work Button */}
+          <button
+            className="scanner-btn btn-red"
+            onClick={() => handleAction('Finish Work')}
+            disabled={
+              !!workLog?.finish_time || // Disable if finish_time is logged
+              !workLog?.start_time || // Disable if work hasn't started
+              (!!workLog?.break_start && !workLog?.break_end)// Disable if break_start is logged
+            }
+          >
+            <i className="fas fa-stop scanner-btn-icon"></i>
+            <span className="scanner-btn-label">Finish Work</span>
+          </button>
+        </div>
       ) : (
         <div className="retry-container">
-          {/* Show retry option when an error occurs */}
-          <p>Scanning stopped due to an error. Please try again.</p>
+          <p>Scanning stopped. Please try again.</p>
           <button
-            className="btn btn-primary"
+            className="scanner-btn btn-blue"
             onClick={() => setShowScanner(true)} // Restart the scanner
           >
-            Retry
+            <i className="fas fa-redo scanner-btn-icon"></i>
+            <span className="scanner-btn-label">Retry</span>
           </button>
         </div>
       )}

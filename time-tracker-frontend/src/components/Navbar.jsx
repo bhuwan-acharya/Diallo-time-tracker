@@ -5,6 +5,7 @@ import logo from '../assets/logo-transparent.png';
 import { decodeToken } from '../utils/token'; // Centralized token decoding utility
 
 function Navbar() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false); // Track menu state
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
 
@@ -17,8 +18,6 @@ function Navbar() {
   const username = user?.email || 'User'; // Use email as the username
   const userRole = user?.role || null; // Extract user role
 
-  console.log('Decoded user role:', userRole); // Debugging log
-
   const handleLogout = () => {
     setShowModal(false);
     localStorage.removeItem('token');
@@ -26,11 +25,12 @@ function Navbar() {
     navigate('/login');
   };
 
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen); // Toggle menu state
+  };
+
   const closeMenu = () => {
-    const navbarCollapse = document.querySelector('.navbar-collapse');
-    if (navbarCollapse?.classList.contains('show')) {
-      navbarCollapse.classList.remove('show'); // Close the menu
-    }
+    setIsMenuOpen(false); // Close the menu
   };
 
   return (
@@ -45,19 +45,20 @@ function Navbar() {
           >
             <img src={logo} alt="Logo" style={{ height: '4rem' }} />
           </Link>
+
+          {/* Custom Hamburger Menu */}
           <button
-            className="navbar-toggler"
+            className={`navbar-toggler custom-toggler ${isMenuOpen ? 'collapsed' : ''}`}
             type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarNav"
-            aria-controls="navbarNav"
-            aria-expanded="false"
+            onClick={toggleMenu}
+            aria-expanded={isMenuOpen}
             aria-label="Toggle navigation"
           >
             <span className="navbar-toggler-icon"></span>
           </button>
 
-          <div className="collapse navbar-collapse" id="navbarNav">
+          {/* Navbar Links */}
+          <div className={`collapse navbar-collapse ${isMenuOpen ? 'show' : ''}`} id="navbarNav">
             <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
               {/* Scanner Link (only visible for non-admin users) */}
               {userRole !== 'admin' && (
@@ -65,9 +66,7 @@ function Navbar() {
                   <Link
                     className="nav-link"
                     to="/"
-                    onClick={() => {
-                      closeMenu(); // Ensure the menu is closed
-                    }}
+                    onClick={closeMenu}
                   >
                     Scanner
                   </Link>
@@ -79,9 +78,7 @@ function Navbar() {
                   <Link
                     className="nav-link"
                     to={userRole === 'admin' ? '/admin' : '/employee'}
-                    onClick={(e) => {
-                      closeMenu();
-                    }}
+                    onClick={closeMenu}
                   >
                     Dashboard
                   </Link>

@@ -209,49 +209,53 @@ app.post('/api/update-password', async (req, res) => {
 
 // Log work route
 app.post('/api/log-work', authenticateToken, async (req, res) => {
-  const { employeeId, date, startTime, breakStart, breakEnd, finishTime, description } = req.body;
+  const { employeeId, type } = req.body;
 
-  if (!employeeId || !date) {
-    return res.status(400).json({ message: 'Employee ID and date are required.' });
+  if (!employeeId || !type) {
+    return res.status(400).json({ message: 'Employee ID and action type are required.' });
   }
 
   try {
+    const currentTime = new Date(); // Generate the timestamp on the server
     const conn = await pool.getConnection();
 
     // Check if a work log already exists for the employee and date
+    const currentDate = currentTime.toISOString().split('T')[0];
     const [existingWorkLog] = await conn.query(
       'SELECT * FROM work_logs WHERE employee_id = ? AND date = ?',
-      [employeeId, date]
+      [employeeId, currentDate]
     );
 
     if (existingWorkLog) {
-      // Update the existing work log
-      const updatedStartTime = startTime || existingWorkLog.start_time;
-      const updatedBreakStart = breakStart || existingWorkLog.break_start;
-      const updatedBreakEnd = breakEnd || existingWorkLog.break_end;
-      const updatedFinishTime = finishTime || existingWorkLog.finish_time;
+      // Update the existing work log based on the action type
+      let updatedFields = {};
+      if (type === 'Start Work') updatedFields.start_time = currentTime;
+      if (type === 'Break Start') updatedFields.break_start = currentTime;
+      if (type === 'Break End') updatedFields.break_end = currentTime;
+      if (type === 'Finish Work') updatedFields.finish_time = currentTime;
 
-      await conn.query(
-        'UPDATE work_logs SET start_time = ?, break_start = ?, break_end = ?, finish_time = ? WHERE id = ?',
-        [updatedStartTime, updatedBreakStart, updatedBreakEnd, updatedFinishTime, existingWorkLog.id]
-      );
+      // Dynamically construct the SET clause
+      const setClause = Object.keys(updatedFields)
+        .map((key) => `${key} = ?`)
+        .join(', ');
+      const values = [...Object.values(updatedFields), existingWorkLog.id];
 
+      await conn.query(`UPDATE work_logs SET ${setClause} WHERE id = ?`, values);
       conn.release();
-      return res.status(200).json({ message: 'Work log updated successfully.' });
+      return res.status(200).json({ message: 'Work log updated successfully.', updatedFields });
     } else {
       // Create a new work log
-      if (!startTime) {
+      if (type !== 'Start Work') {
         conn.release();
-        return res.status(400).json({ message: 'Start time is required for a new work log.' });
+        return res.status(400).json({ message: 'Start Work is required to create a new work log.' });
       }
 
       await conn.query(
-        'INSERT INTO work_logs (employee_id, date, start_time, break_start, break_end, finish_time, description) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [employeeId, date, startTime, breakStart, breakEnd, finishTime, description]
+        'INSERT INTO work_logs (employee_id, date, start_time) VALUES (?, ?, ?)',
+        [employeeId, currentDate, currentTime]
       );
-
       conn.release();
-      return res.status(200).json({ message: 'Work log created successfully.' });
+      return res.status(200).json({ message: 'Work log created successfully.', start_time: currentTime });
     }
   } catch (error) {
     console.error('Error logging work:', error);
@@ -345,6 +349,33 @@ app.get('/api/employee/work-logs', authenticateToken, async (req, res) => {
   }
 });
 
+// Fetch current work log for the day
+app.get('/api/work-log', authenticateToken, async (req, res) => {
+  const { id: employeeId } = req.user; // Extract employee ID from the token
+
+  try {
+    const currentDate = new Date().toISOString().split('T')[0]; // Get today's date
+    const conn = await pool.getConnection();
+
+    // Fetch the work log for the current day
+    const [workLog] = await conn.query(
+      'SELECT * FROM work_logs WHERE employee_id = ? AND date = ?',
+      [employeeId, currentDate]
+    );
+
+    conn.release();
+
+    if (workLog) {
+      return res.status(200).json(workLog); // Return the work log if it exists
+    } else {
+      return res.status(404).json({ message: 'No work log found for today.' });
+    }
+  } catch (error) {
+    console.error('Error fetching work log:', error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Error:', err.message);
@@ -355,3 +386,4 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
+
