@@ -19,7 +19,7 @@ const refreshTokens = []; // Store refresh tokens (in-memory for now)
 
 // Enable CORS
 app.use(cors({
-  origin: 'http://localhost:5173', // Replace with your frontend's origin
+  origin: 'https://sadakka.netlify.app', // Replace with your frontend's origin
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods
   credentials: true, // Allow cookies and credentials
 }));
@@ -165,7 +165,7 @@ app.post('/api/reset-password', async (req, res) => {
     conn.release();
 
     // Send the reset link via email
-    const resetLink = `http://localhost:5173/update-password?token=${resetToken}`;
+    const resetLink = `https://sadakka.netlify.app/update-password?token=${resetToken}`;
     await sendEmail(email, 'Password Reset Request', `Click the link to reset your password: ${resetLink} , The link is only valid for 10 Minutes.`);
 
     res.status(200).json({ message: 'Password reset link sent to your email.' });
