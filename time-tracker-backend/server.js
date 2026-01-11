@@ -12,11 +12,14 @@ dotenv.config();
 
 const app = express();
 app.set('trust proxy', 1);
+
 const PORT = process.env.PORT || 5000;
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+let FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+
+// Remove trailing slash from FRONTEND_URL to avoid CORS mismatch
+FRONTEND_URL = FRONTEND_URL.replace(/\/$/, '');
 
 // Trust proxy for Render
-app.set('trust proxy', 1);
 
 app.use(express.json());
 
