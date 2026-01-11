@@ -1,71 +1,70 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
---
--- Host: 127.0.0.1:3306
--- Generation Time: Jan 09, 2026 at 03:44 PM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.0.30
+-- 1. DROP EXISTING TABLES (Optional, for a clean run)
+DROP TABLE IF EXISTS "work_logs";
+DROP TABLE IF EXISTS "refresh_tokens";
+DROP TABLE IF EXISTS "password_resets";
+DROP TABLE IF EXISTS "users";
 
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
-SET time_zone = "+00:00";
+-- 2. DROP AND RE-CREATE TYPE
+-- This is the fix for your error
+DROP TYPE IF EXISTS user_role;
+CREATE TYPE user_role AS ENUM ('admin', 'employee');
 
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
-
---
--- Database: "diallo_time_tracker"
---
-
--- --------------------------------------------------------
-
---
--- Table structure for table "password_resets"
---
-
+-- 3. CREATE TABLES
 CREATE TABLE "password_resets" (
-  "id" int(11) NOT NULL,
+  "id" SERIAL PRIMARY KEY,
   "email" varchar(255) NOT NULL,
   "token" varchar(255) NOT NULL,
-  "created_at" timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB 
-
--- --------------------------------------------------------
-
---
--- Table structure for table "refresh_tokens"
---
+  "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 
 CREATE TABLE "refresh_tokens" (
-  "id" int(11) NOT NULL,
-  "user_id" int(11) NOT NULL,
+  "id" SERIAL PRIMARY KEY,
+  "user_id" int NOT NULL,
   "token" text NOT NULL,
-  "created_at" datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB 
-
--- --------------------------------------------------------
-
---
--- Table structure for table "users"
---
+  "created_at" timestamp DEFAULT CURRENT_TIMESTAMP
+);
 
 CREATE TABLE "users" (
-  "id" int(11) NOT NULL,
+  "id" SERIAL PRIMARY KEY,
   "name" varchar(255) NOT NULL,
-  "email" varchar(255) NOT NULL,
+  "email" varchar(255) NOT NULL UNIQUE,
   "password" varchar(255) NOT NULL,
-  "role" enum('admin','employee') NOT NULL,
-  "created_at" timestamp NOT NULL DEFAULT current_timestamp(),
+  "role" user_role NOT NULL,
+  "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "reset_token" varchar(255) DEFAULT NULL
-) ENGINE=InnoDB 
+);
 
---
--- Dumping data for table "users"
---
+CREATE TABLE "work_logs" (
+  "id" SERIAL PRIMARY KEY,
+  "employee_id" int NOT NULL,
+  "date" date NOT NULL,
+  "start_time" timestamp NOT NULL,
+  "break_start" timestamp DEFAULT NULL,
+  "break_end" timestamp DEFAULT NULL,
+  "finish_time" timestamp DEFAULT NULL,
+  "description" text DEFAULT NULL,
+  "created_at" timestamp DEFAULT CURRENT_TIMESTAMP,
+  "modified_at" timestamp DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 4. TRIGGER FOR MODIFIED_AT
+CREATE OR REPLACE FUNCTION update_modified_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.modified_at = now();
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+DROP TRIGGER IF EXISTS update_work_logs_modtime ON "work_logs";
+CREATE TRIGGER update_work_logs_modtime
+    BEFORE UPDATE ON "work_logs"
+    FOR EACH ROW
+    EXECUTE PROCEDURE update_modified_column();
+
+-- --------------------------------------------------------
+-- Data Insertion (Example for users)
+-- --------------------------------------------------------
 
 INSERT INTO "users" ("id", "name", "email", "password", "role", "created_at", "reset_token") VALUES
 (1, 'John Doe', 'admin@example.com', '$2b$10$XZCNvBSnHFiTgdb/0CCyvuqw8J2na94w0GevR8HmV33HMNidUeEkO', 'admin', '2025-04-10 18:50:25', NULL),
@@ -82,28 +81,7 @@ INSERT INTO "users" ("id", "name", "email", "password", "role", "created_at", "r
 (12, '', 'employee2@example.com', '$2b$10$ImslMCwhgj/TW.0r8aWW6./zQZQzW4t0874IUoI7f8Uf3LUIWByrC', 'employee', '2025-04-11 04:23:18', NULL),
 (13, '', 'bhuwanacharya56@gmail.com', '$2b$10$OF9LyK77vJOkr1GkG/Qu6.qWQWHFN418NVCZ2kS/RX.sNU17yy326', 'employee', '2025-04-11 14:50:31', NULL);
 
--- --------------------------------------------------------
 
---
--- Table structure for table "work_logs"
---
-
-CREATE TABLE "work_logs" (
-  "id" int(11) NOT NULL,
-  "employee_id" int(11) NOT NULL,
-  "date" date NOT NULL,
-  "start_time" datetime NOT NULL,
-  "break_start" datetime DEFAULT NULL,
-  "break_end" datetime DEFAULT NULL,
-  "finish_time" datetime DEFAULT NULL,
-  "description" text DEFAULT NULL,
-  "created_at" datetime DEFAULT current_timestamp(),
-  "modified_at" datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB 
-
---
--- Dumping data for table "work_logs"
---
 
 INSERT INTO "work_logs" ("id", "employee_id", "date", "start_time", "break_start", "break_end", "finish_time", "description", "created_at", "modified_at") VALUES
 (1, 1, '2025-04-10', '2025-04-11 06:30:00', '2025-04-11 10:15:00', '2025-04-11 11:45:00', '2025-04-11 15:29:00', 'Work log for employee 1', '2025-04-11 08:57:00', '2025-04-11 19:48:07'),
@@ -163,8 +141,9 @@ INSERT INTO "work_logs" ("id", "employee_id", "date", "start_time", "break_start
 (55, 9, '2025-04-08', '2025-04-08 06:49:00', '2025-04-08 10:25:00', '2025-04-08 10:35:00', '2025-04-08 15:44:00', 'Work log for employee 9', '2025-04-11 08:57:00', '2025-04-11 08:57:00'),
 (56, 2, '2025-04-11', '2025-04-11 15:19:18', '2025-04-11 15:01:54', '2025-04-11 15:02:26', '2025-04-11 15:02:38', NULL, '2025-04-11 16:48:10', '2025-04-11 17:19:18'),
 (0, 2, '2025-11-09', '2025-11-09 17:52:42', NULL, NULL, '2025-11-09 17:52:52', NULL, '2025-11-09 17:52:42', '2025-11-09 17:52:52');
-COMMIT;
 
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+-- Reset the sequence for SERIAL columns so auto-increment works after manual ID inserts
+-- 6. RESET SEQUENCES
+-- This ensures that your next manual insert doesn't hit a "duplicate key" error
+SELECT setval(pg_get_serial_sequence('users', 'id'), coalesce(max(id), 1)) FROM users;
+SELECT setval(pg_get_serial_sequence('work_logs', 'id'), coalesce(max(id), 1)) FROM work_logs;

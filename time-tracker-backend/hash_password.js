@@ -1,8 +1,8 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 async function generateHashedPasswords() {
   const employees = [
-    { id: 11, email: 'employee11@example.com', password: 'test1234' },
+    { id: 11, email: 'thiernomam78@gmail.com', password: 'diallo123' },
   ];
 
   for (const employee of employees) {
