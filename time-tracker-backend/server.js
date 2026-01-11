@@ -14,6 +14,9 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
+// Trust proxy for Render
+app.set('trust proxy', 1);
+
 app.use(express.json());
 
 const refreshTokens = [];
@@ -39,6 +42,7 @@ const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10,
   message: 'Too many login attempts. Please try again later.',
+  skip: (req) => req.ip === '127.0.0.1', // Skip localhost
 });
 
 // Login API Endpoint
